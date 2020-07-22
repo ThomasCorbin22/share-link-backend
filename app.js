@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const https = require("https");
+const fs = require("fs");
 const app = express();
 
 const port = 8084;
@@ -9,6 +11,15 @@ app.use(bodyParser.json());
 app.use(cors());
 
 require("dotenv").config();
+
+// Create HTTPS server
+const server = https.createServer(
+  {
+    cert: fs.readFileSync("./localhost.crt"),
+    key: fs.readFileSync("./localhost.key"),
+  },
+  app
+);
 
 const knex = require("knex")({
   client: "postgresql",
@@ -101,7 +112,7 @@ async function compileTags(results) {
   return JSON.stringify(links);
 }
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log("Application listening to port " + port);
 });
 
